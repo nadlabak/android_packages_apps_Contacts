@@ -39,7 +39,7 @@
     <application
         android:label="@string/contactsList"
         android:icon="@drawable/ic_launcher_contacts"
-        android:process="android.process.acore"
+        android:process="android.process.contacts"
         android:taskAffinity="android.task.contacts"
     >
 
