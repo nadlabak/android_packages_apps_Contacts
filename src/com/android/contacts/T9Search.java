@@ -26,7 +26,6 @@ import java.util.Set;
 
 import android.content.ContentUris;
 import android.content.Context;
-import android.graphics.Color;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -35,8 +34,6 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract.CommonDataKinds.Phone;
 import android.provider.ContactsContract.Contacts;
 import android.telephony.PhoneNumberUtils;
-import android.text.Spannable;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -288,7 +285,6 @@ class T9Search {
         private ArrayList<ContactItem> mItems;
         private LayoutInflater mMenuInflate;
         //private ContactPhotoManager mPhotoLoader;
-        private String mNumber;
 
         public T9Adapter(Context context, int textViewResourceId, ArrayList<ContactItem> items, LayoutInflater menuInflate) {
             super(context, textViewResourceId, items);
@@ -296,11 +292,6 @@ class T9Search {
             mMenuInflate = menuInflate;
             //mPhotoLoader = photoLoader;
         }
-
-        protected void setNumber(String number) {
-            mNumber = T9Search.removeNonDigits(number);
-        }
-
 
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -318,23 +309,8 @@ class T9Search {
             }
 
             ContactItem o = mItems.get(position);
-
-            holder.name.setText(o.name, TextView.BufferType.SPANNABLE);
-            holder.number.setText(o.number + " (" + o.groupType + ")", TextView.BufferType.SPANNABLE);
-            if (o.nameMatchId != -1) {
-                Spannable s = (Spannable) holder.name.getText();
-                int nameStart = o.normalName.indexOf(mNumber);
-                s.setSpan(new ForegroundColorSpan(Color.WHITE),
-                        nameStart, nameStart + mNumber.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                holder.name.setText(s);
-            }
-            if (o.numberMatchId != -1) {
-                Spannable s = (Spannable) holder.number.getText();
-                int numberStart = o.numberMatchId;
-                s.setSpan(new ForegroundColorSpan(Color.WHITE),
-                        numberStart, numberStart + mNumber.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
-                holder.number.setText(s);
-            }
+            holder.name.setText(o.name);
+            holder.number.setText(o.number + " (" + o.groupType + ")");
             if (o.photo != null)
                 holder.icon.setImageBitmap(o.photo);
             else
