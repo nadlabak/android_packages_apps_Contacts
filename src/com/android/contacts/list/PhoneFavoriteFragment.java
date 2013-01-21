@@ -18,6 +18,7 @@ package com.android.contacts.list;
 import com.android.contacts.ContactPhotoManager;
 import com.android.contacts.ContactTileLoaderFactory;
 import com.android.contacts.R;
+import com.android.contacts.dialog.ClearFrequentsDialog;
 import com.android.contacts.preference.ContactsPreferences;
 import com.android.contacts.util.AccountFilterUtil;
 
@@ -35,6 +36,8 @@ import android.os.Bundle;
 import android.provider.ContactsContract.Directory;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -99,6 +102,9 @@ public class PhoneFavoriteFragment extends Fragment implements OnItemClickListen
             // Show the filter header with "loading" state.
             updateFilterHeaderView();
             mAccountFilterHeader.setVisibility(View.VISIBLE);
+
+            // invalidate the options menu if needed
+            invalidateOptionsMenuIfNeeded();
         }
 
         @Override
@@ -198,6 +204,9 @@ public class PhoneFavoriteFragment extends Fragment implements OnItemClickListen
 
     private TextView mEmptyView;
     private ListView mListView;
+
+    private boolean mOptionsMenuHasFrequents;
+
     /**
      * Layout containing {@link #mAccountFilterHeader}. Used to limit area being "pressed".
      */
@@ -266,6 +275,16 @@ public class PhoneFavoriteFragment extends Fragment implements OnItemClickListen
         return listLayout;
     }
 
+    private boolean isOptionsMenuChanged() {
+        return mOptionsMenuHasFrequents != hasFrequents();
+    }
+
+    private void invalidateOptionsMenuIfNeeded() {
+        if (isOptionsMenuChanged()) {
+            getActivity().invalidateOptionsMenu();
+        }
+    }
+
     /**
      * Constructs and initializes {@link #mContactTileAdapter}, {@link #mAllContactsAdapter}, and
      * {@link #mAllContactsAdapter}.
@@ -315,6 +334,17 @@ public class PhoneFavoriteFragment extends Fragment implements OnItemClickListen
         mAdapter = new PhoneFavoriteMergedAdapter(context,
                 mContactTileAdapter, mAccountFilterHeaderContainer, mAllContactsAdapter);
 
+    }
+
+    @Override
+    public void onPrepareOptionsMenu(Menu menu) {
+        final MenuItem clearFrequents = menu.findItem(R.id.menu_clear_frequents);
+        mOptionsMenuHasFrequents = hasFrequents();
+        clearFrequents.setVisible(mOptionsMenuHasFrequents);
+    }
+
+    private boolean hasFrequents() {
+        return mContactTileAdapter.getNumFrequents() > 0;
     }
 
     @Override

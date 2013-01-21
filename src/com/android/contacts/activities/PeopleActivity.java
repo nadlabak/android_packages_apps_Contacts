@@ -27,6 +27,7 @@ import com.android.contacts.detail.ContactDetailLayoutController;
 import com.android.contacts.detail.ContactDetailUpdatesFragment;
 import com.android.contacts.detail.ContactLoaderFragment;
 import com.android.contacts.detail.ContactLoaderFragment.ContactLoaderFragmentListener;
+import com.android.contacts.dialog.ClearFrequentsDialog;
 import com.android.contacts.group.GroupBrowseListFragment;
 import com.android.contacts.group.GroupBrowseListFragment.OnGroupBrowserActionListener;
 import com.android.contacts.group.GroupDetailFragment;
@@ -1350,22 +1351,27 @@ public class PeopleActivity extends ContactsActivity
             addGroupMenu = menu.findItem(R.id.menu_custom_add_group);
         }
 
+        final MenuItem clearFrequentsMenu = menu.findItem(R.id.menu_clear_frequents);
+
         final boolean isSearchMode = mActionBarAdapter.isSearchMode();
         if (isSearchMode) {
             addContactMenu.setVisible(false);
             addGroupMenu.setVisible(false);
             contactsFilterMenu.setVisible(false);
+            clearFrequentsMenu.setVisible(false);
         } else {
             switch (mActionBarAdapter.getCurrentTab()) {
                 case FAVORITES:
                     addContactMenu.setVisible(false);
                     addGroupMenu.setVisible(false);
                     contactsFilterMenu.setVisible(false);
+                    clearFrequentsMenu.setVisible(hasFrequents());
                     break;
                 case ALL:
                     addContactMenu.setVisible(true);
                     addGroupMenu.setVisible(false);
                     contactsFilterMenu.setVisible(true);
+                    clearFrequentsMenu.setVisible(false);
                     break;
                 case GROUPS:
                     // Do not display the "new group" button if no accounts are available
@@ -1376,6 +1382,7 @@ public class PeopleActivity extends ContactsActivity
                     }
                     addContactMenu.setVisible(false);
                     contactsFilterMenu.setVisible(false);
+                    clearFrequentsMenu.setVisible(false);
                     break;
             }
         }
@@ -1387,6 +1394,18 @@ public class PeopleActivity extends ContactsActivity
                 showMiscOptions && !ContactsPreferenceActivity.isEmpty(this));
 
         return true;
+    }
+
+    /**
+     * Returns whether there are any frequently contacted people being displayed
+     * @return
+     */
+    private boolean hasFrequents() {
+        if (PhoneCapabilityTester.isUsingTwoPanes(this)) {
+            return mFrequentFragment.hasFrequents();
+        } else {
+            return mFavoritesFragment.hasFrequents();
+        }
     }
 
     private void makeMenuItemVisible(Menu menu, int itemId, boolean visible) {
@@ -1453,6 +1472,10 @@ public class PeopleActivity extends ContactsActivity
             }
             case R.id.menu_import_export: {
                 ImportExportDialogFragment.show(getFragmentManager());
+                return true;
+            }
+            case R.id.menu_clear_frequents: {
+                ClearFrequentsDialog.show(getFragmentManager());
                 return true;
             }
             case R.id.menu_accounts: {
